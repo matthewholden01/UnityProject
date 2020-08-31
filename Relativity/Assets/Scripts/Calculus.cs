@@ -15,15 +15,17 @@ public class Calculus
         return Mathf.Sqrt((Mathf.Pow(myVector.x, 2f) + Mathf.Pow(myVector.y, 2f) + Mathf.Pow(myVector.z, 2f)));
     }
 
-    public static Vector3 distanceTraveled(Vector3 velocity, Vector3 acceleration, float initial, float final){
-        float v0tx = integrate(velocity.x, 0f, initial, final);
-        float atx = integrate(acceleration.x, 1f, initial, final);
-        float v0ty = integrate(velocity.y, 0f, initial, final);
-        float aty = integrate(acceleration.y, 1f, initial, final);
-        float v0tz = integrate(velocity.z, 0f, initial, final);
-        float atz = integrate(acceleration.z, 1f, initial, final);
+    public static Vector3 distanceTraveled(Vector3 velocity, Vector3 acceleration, float time){
+        Vector3 distance = new Vector3();
+        Vector3 vt = velocity * time;
+        Vector3 at = .5f * acceleration * Mathf.Pow(time, 2);
+        distance = vt + at;
 
-        return new Vector3(v0tx + atx, v0ty + aty, v0tz + atz);
+        return distance;
+    }
+
+    public static Vector3 normalize(Vector3 myVector){
+        return myVector / Mathf.Sqrt(magnitude(myVector));
     }
 
 }

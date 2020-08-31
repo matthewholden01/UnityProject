@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02c9f382f10b4e012a1173b16201d8a1, type: 3}
   m_Name: RocketSettings
   m_EditorClassIdentifier: 
-  rocketVelocity: {x: 0, y: 100000000, z: 100000000}
-  timeToMaximumSpeed: 60
+  rocketVelocity: {x: 0, y: 0, z: 0}
+  timeToMaximumSpeed: 0
   distToTravelInLy: {x: 0, y: 0, z: 0}
   speedOfLight: 300000000
+  startRocket: 0
