@@ -11,6 +11,8 @@ public class LorentzTransforms : MonoBehaviour {
     public SgtThruster thruster;
     public TextMeshProUGUI[] properText = new TextMeshProUGUI[3];
     public TextMeshProUGUI[] relativeText = new TextMeshProUGUI[4];
+    public CanvasGroup canvasGroup2;
+    public TextMeshProUGUI[] finalText = new TextMeshProUGUI[3];
     private Rigidbody rigidbody;
     private Transform rocket_trans, relativeTrans;
     private Vector3 initScale, lengthDiff, distTraveled, accel, force;
@@ -104,6 +106,24 @@ public class LorentzTransforms : MonoBehaviour {
                 accel = Vector3.zero;
                 thruster.ForceMagnitude = 0f;
             }
+
+        if(distTraveled.magnitude >= rocketSettings.distToTravelInLy.magnitude * rocketSettings.speedOfLight * 365f * 24f * 3600f){
+            rocketSettings.endGame = true;
+            rocketSettings.startRocket = false;
+            finalText[0].text = "- Effects of Special Relativity this trip -";
+            finalText[1].text = "Proper Reference Frame\n\nLength of Rocket: " + initScale.magnitude + " meters" + "\nDistance Traveled: " + rocketSettings.distToTravelInLy.magnitude + " lightyears" + "\nTime Experienced: " + timer / (365f * 24f * 3600f) + " years";
+            finalText[2].text = "Relative Reference Frame\n\nLength of Rocket: " + relativitySettings.relativeScale.magnitude + " meters" + "\nDistance Traveled: " + rocketSettings.distanceTraveled.magnitude / (rocketSettings.speedOfLight * 365f * 24f * 3600f) + " lightyears" + "\nTime Experienced: " + relativitySettings.relativeTime / (365f * 24f * 3600f) + " years";
+            StartCoroutine(fadeIn()); 
+        }
+
+        }
+    }
+    IEnumerator fadeIn(){
+        for(float t = 0.01f; t < 5.0f;){
+            t+= Time.deltaTime;
+            t = Mathf.Min(t, 5.0f);
+            canvasGroup2.alpha = Mathf.Lerp(0, 1, Mathf.Min(1, t / 5.0f));
+            yield return null;
         }
     }
 

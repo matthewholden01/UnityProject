@@ -5,20 +5,15 @@ using UnityEngine;
 public class screenSpace : MonoBehaviour
 {
     public Camera camera;
-    public GameObject rocket, relRocket, star;
-    Transform target, relTarget, starTrans;
+    public GameObject rocket, relRocket;
+    Transform target, relTarget;
     Vector3 initialPos, RelInitialPos, Origin;
-    float timer = 0f;
+    float time, timer = 0f;
     public RocketSettings rocketSettings;
     public RelativitySettings relativitySettings;
 
    
-    public Vector3 normalizePointToScreenSpace(Vector3 distTrav, Vector3 origin){
-        Vector3 finalPoint = new Vector3();
-        Vector3 unitVector = distTrav / (rocketSettings.distToTravelInLy * rocketSettings.speedOfLight * 365f * 24f * 3600f).magnitude;
-        finalPoint = origin + Vector3.Scale(unitVector, new Vector3(0.2f, 0.5f, origin.z));
-        return finalPoint;
-    }   
+    
 
      public Vector3 LengthContraction(Vector3 transform, Vector3 velocity){
         float gamma = (Mathf.Sqrt(1 - (Mathf.Pow(velocity.magnitude, 2) / Mathf.Pow(rocketSettings.speedOfLight, 2))));
@@ -29,24 +24,29 @@ public class screenSpace : MonoBehaviour
     }
 
     private void Start() {
-        starTrans = star.GetComponent<Transform>();
         target = rocket.GetComponent<Transform>();
-        initialPos = camera.WorldToViewportPoint(target.position);
-        Origin = new Vector3(0.2f, 0.5f, initialPos.z);
-        target.position = camera.ViewportToWorldPoint(Origin);
         relTarget = relRocket.GetComponent<Transform>();
+        initialPos = camera.WorldToViewportPoint(target.position);
+        Origin = new Vector3(0.3f, 0.4f, initialPos.z);
+        target.position = camera.ViewportToWorldPoint(Origin);
         relTarget.position = camera.ViewportToWorldPoint(Origin);
-
     }
 
     // Update is called once per frame
     void Update()
     {
         if(rocketSettings.startRocket == true){
-            initialPos = camera.WorldToViewportPoint(target.position);
-            RelInitialPos = camera.WorldToViewportPoint(relTarget.position);
-            target.position = camera.ViewportToWorldPoint(normalizePointToScreenSpace(LengthContraction(rocketSettings.distanceTraveled, relativitySettings.velocity), Origin));
-            relTarget.position = camera.ViewportToWorldPoint(normalizePointToScreenSpace(rocketSettings.distanceTraveled, Origin));
+             time+= Time.deltaTime;
+             Vector3 endPoint = Origin + (rocketSettings.distToTravelInLy / (rocketSettings.distToTravelInLy + Vector3.Scale(Origin, rocketSettings.distToTravelInLy)).magnitude) - camera.WorldToViewportPoint(relTarget.position);
+             relTarget.position = camera.ViewportToWorldPoint(Origin + ((rocketSettings.distanceTraveled / (rocketSettings.speedOfLight * 365f * 24f * 3600f)) / (rocketSettings.distToTravelInLy + Vector3.Scale(Origin, rocketSettings.distToTravelInLy)).magnitude));
+             target.position = camera.ViewportToWorldPoint(LengthContraction(Origin + ((rocketSettings.distanceTraveled / (rocketSettings.speedOfLight * 365f * 24f * 3600f)) / (rocketSettings.distToTravelInLy + Vector3.Scale(Origin, rocketSettings.distToTravelInLy)).magnitude), relativitySettings.velocity));
+             Quaternion rotation = Quaternion.LookRotation(endPoint,Vector3.forward);
+             Quaternion relRotation = Quaternion.LookRotation(LengthContraction(endPoint, rocketSettings.rocketVelocity), Vector3.forward);
+             if(time >= rocketSettings.timeToMaximumSpeed){
+                relTarget.rotation = Quaternion.Slerp(relTarget.rotation, rotation, time);
+                target.rotation = Quaternion.Slerp(target.rotation, relRotation, time);
+                timer = (timer + Time.deltaTime) / 60f;
+             }
         }
     }
 }
